@@ -1,82 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+const readline = require('readline');
 
-    <title>ass2</title>
-</head>
-<body>
-  <style>
-    body{
-        background-color: white;
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
+let currentPlayer = 'X';
+const board = [
+  [' ', ' ', ' '],
+  [' ', ' ', ' '],
+  [' ', ' ', ' ']
+];
+
+function printBoard() {
+  for (let i = 0; i < 3; i++) {
+    console.log(board[i].join(' | '));
+    if (i < 2) {
+      console.log('---------');
     }
-    .a{
-        background-color: black;
-        color: white;
+  }
+}
 
+function checkWin(player) {
+  // Check rows, columns, and diagonals for a win
+  for (let i = 0; i < 3; i++) {
+    if (
+      (board[i][0] === player && board[i][1] === player && board[i][2] === player) ||
+      (board[0][i] === player && board[1][i] === player && board[2][i] === player)
+    ) {
+      return true;
     }
-    .b{
-        background-color: yellow;
-        border-radius: 20px;
-        color: black;
-        width: 100px;
-        height: 25px;
-        border: 0px;
+  }
 
-    }
-    .c{
-        background-color: green;
-        color: white;
-        border-radius: 5px;
-        width: 75px;
-        height: 25px;
-        border: 1px;
-    }
-    .d{
-        background-color: blueviolet;
-        color: white;
-        border-radius: 5px;
-        width: 75px;
-        height: 25px;
-        border: 1px;
+  if (
+    (board[0][0] === player && board[1][1] === player && board[2][2] === player) ||
+    (board[0][2] === player && board[1][1] === player && board[2][0] === player)
+  ) {
+    return true;
+  }
 
-    }
-    .e{
-        color: black;
-        background-color: white;
-        margin: 0.5px;
-        width: 70px;
-        height: 25px;
-        border-color: black;
+  return false;
+}
 
+function isBoardFull() {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[i][j] === ' ') {
+        return false;
+      }
     }
-    .f{
-        color: white;
-        background-color: blue;
-        border-radius: 20px;
-        width: 200px;
-        height: 25px;
-        
+  }
+  return true;
+}
 
-    }
-    .g{
-        border-radius: 20px;
-        color: blue;
-        background-color: white;
-        margin:0.5px ;
-        border-color: blue;
+function playMove(row, col) {
+  if (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] === ' ') {
+    board[row][col] = currentPlayer;
+    return true;
+  }
+  return false;
+}
 
-    }
+function switchPlayer() {
+  currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+}
 
-    
-  </style>  
-  <button class="a">Request now</button>
-  <button class="b">Add to cart</button>
-  <button class="c">Sign up</button>
-  <button class="d">get started</button>
-  <button class="e">download</button>
-  <button class="f">apply on company website</button>
-  <button class="g">save</button>
-  <a href="index.html">back</a>
-</body>
-</html>
+function startGame() {
+  console.log('Welcome to Tic Tac Toe!');
+  console.log('To make a move, enter the row and column (e.g., "0 0" for the top-left corner).');
+
+  function promptMove() {
+    printBoard();
+    rl.question(`Player ${currentPlayer}, enter your move (row col): `, (input) => {
+      const [row, col] = input.split(' ').map(Number);
+
+      if (playMove(row, col)) {
+        if (checkWin(currentPlayer)) {
+          printBoard();
+          console.log(`Player ${currentPlayer} wins!`);
+          rl.close();
+        } else if (isBoardFull()) {
+          printBoard();
+          console.log("It's a draw!");
+          rl.close();
+        } else {
+          switchPlayer();
+          promptMove();
+        }
+      } else {
+        console.log('Invalid move. Try again.');
+        promptMove();
+      }
+    });
+  }
+
+  promptMove();
+}
+
+startGame();
